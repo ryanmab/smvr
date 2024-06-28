@@ -1,4 +1,8 @@
 ![Coverage](https://api.coveragerobot.com/v1/graph/github/ryanmab/smvr/badge.svg?token=c63b202336b40790d0e8963cc595bd90eb0e6d46630e222511)
+[![Crates.io Version](https://img.shields.io/crates/v/smvr)](https://crates.io/crates/smvr)
+[![docs.rs](https://img.shields.io/docsrs/smvr)](https://docs.rs/smvr)
+[![Build](https://github.com/ryanmab/smvr/actions/workflows/build.yml/badge.svg)](https://github.com/ryanmab/smvr/actions/workflows/build.yml)
+![GitHub License](https://img.shields.io/github/license/ryanmab/smvr)
 
 <!-- cargo-rdme start -->
 
@@ -13,7 +17,7 @@ be formed, incremented and evaluated.
 
 ```toml
 [dependencies]
-smvr = "0.1.0"
+smvr = "0.1.1"
 ```
 
 ## Dialects
