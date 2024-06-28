@@ -12,7 +12,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! smvr = "0.1.0"
+//! smvr = "0.1.1"
 //! ```
 //!
 //! ## Dialects
