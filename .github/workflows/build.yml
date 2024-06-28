@@ -1,0 +1,174 @@
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+name: Build
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    name: format
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: cargo fmt --check
+        run: cargo fmt --check
+
+  semver:
+    runs-on: ubuntu-latest
+    name: semver
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: cargo-semver-checks
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+        continue-on-error: true
+
+  clippy:
+    runs-on: ubuntu-latest
+    name: clippy (${{ matrix.toolchain }})
+    needs: [ format, semver ]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: [ stable, beta ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ${{ matrix.toolchain }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: clippy
+
+      - name: cargo clippy
+        uses: giraffate/clippy-action@v1
+        with:
+          reporter: 'github-pr-check'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  msrv:
+    runs-on: ubuntu-latest
+    name: msrv (${{ matrix.msrv }})
+    needs: [ format, semver ]
+
+    strategy:
+      matrix:
+        msrv: [ "1.56.0" ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ${{ matrix.msrv }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.msrv }}
+
+      - name: cargo +${{ matrix.msrv }} check
+        run: cargo check
+
+  documentation:
+    runs-on: ubuntu-latest
+    name: documentation
+    needs: [ format, semver ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install nightly
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Install Cargo Rdme
+        run: cargo install cargo-rdme
+
+      - name: cargo doc
+        run: cargo doc --no-deps --all-features
+        env:
+          RUSTDOCFLAGS: --cfg docsrs
+
+      - name: cargo rdme --check
+        run: cargo rdme --check
+
+  test:
+    name: tests (${{ matrix.os }} / ${{ matrix.toolchain }})
+    runs-on: ${{ matrix.os }}
+    needs: [ documentation, msrv ]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        toolchain: [ stable, beta ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ${{ matrix.toolchain }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+
+      - name: cargo test --locked
+        run: cargo test --locked --all-features --all-targets
+
+      - name: cargo test --doc
+        run: cargo test --locked --all-features --doc
+
+  coverage:
+    name: coverage
+    runs-on: ubuntu-latest
+    needs: [ documentation, msrv ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install nightly
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: llvm-tools-preview
+
+      - name: cargo install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - run: cargo +nightly llvm-cov --locked --all-features --lcov --output-path lcov_unit.info
+
+      - run: cargo +nightly llvm-cov --locked --doc --all-features --lcov --output-path lcov_docs.info
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: lcov_*.info
+
+      - uses: coverage-robot/action@v1.0.5
+        with:
+          token: ${{ secrets.COVERAGE_TOKEN }}
+          files: |
+            lcov_unit.info
+          tag: unit-tests
+        continue-on-error: true
+
+      - uses: coverage-robot/action@v1.0.5
+        with:
+          token: ${{ secrets.COVERAGE_TOKEN }}
+          files: |
+            lcov_docs.info
+          tag: doc-tests
+        continue-on-error: true
