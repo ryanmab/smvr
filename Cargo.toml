@@ -1,0 +1,20 @@
+[package]
+name = "smvr"
+description = "A flexible parser and evaluator for interacting with Semantic Version strings."
+version = "0.1.0"
+keywords = ["semver", "version", "parser", "semantic"]
+categories = ["parser-implementations", "development-tools"]
+
+rust-version = "1.56.0"
+edition = "2021"
+
+license = "MIT"
+
+readme = "README.md"
+homepage = "https://ryanmaber.com"
+repository = "https://github.com/ryanmab/smvr"
+
+authors = ["Ryan Maber <ryan@ryanmaber.com>"]
+
+[badges]
+maintenance = { status = "passively-maintained" }
