@@ -20,4 +20,4 @@ authors = ["Ryan Maber <ryan@ryanmaber.com>"]
 maintenance = { status = "passively-maintained" }
 
 [dev-dependencies]
-proptest = "1.1.0"
+proptest = "1.5.0"
