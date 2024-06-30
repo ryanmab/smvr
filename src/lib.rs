@@ -17,10 +17,10 @@
 //!
 //! ## Dialects
 //!
-//! Dialects reflect varying implementations and interpretations of the SemVer specification.
+//! Dialects reflect implementations and interpretations of the SemVer specification.
 //!
-//! Dialects implement a distinct parsing method for a version string, based on the version constraint's
-//! origin. For example, differing package managers.
+//! A dialect must implement a method for parsing a version string, following a deterministic set of
+//! rules. For example, differing package managers may impose specific styling constraints.
 //!
 //! Dialect | Description
 //! -|-
@@ -28,9 +28,9 @@
 //!
 //! ### Parsing version strings
 //!
-//! Version strings should be parsed against a dialect to produce a `smvr::Version` instance.
+//! Version strings should be parsed, following a dialect, to produce a `smvr::Version` instance.
 //!
-//! This enforces validation while parsing inline with the dialect implementation.
+//! Validation is enforced while parsing occurs, and is implemented by the chosen dialect.
 //!
 //! ```rust
 //! use smvr::{BuildMetadata, Prerelease, PrereleaseComponent, Version};
@@ -60,10 +60,11 @@
 //!
 //! ### Comparing versions
 //!
-//! `smvr::Version`'s can be compared inline with the original dialect implementation used to
-//! parse the version string.
+//! Instances of `smvr::Version`, which are parsed from the same dialect, can be compared against once another.
 //!
-//! **Note:** In order to maintain consistency, only versions of the same dialect can be compared.
+//! The comparison behaviour is dialect specific, and can be used to deterministically evaluate the chronology of two or more version strings.
+//!
+//! For example: `1.0.0-alpha.1` < `1.0.0-alpha.2` < `1.0.0-beta` < `1.0.0` < `1.0.1`
 //!
 //! ```rust
 //! use smvr::{Dialect, Version};
@@ -86,13 +87,13 @@
 //!
 //! ### Handling errors
 //!
-//! While parsing, each byte will be read inline with the dialect's implementation. If any bytes are uncounted which
-//! do not conform with how the rules the dialect implements, an error will be returned.
+//! While parsing, each byte will be read, adhereing to a chosen dialect. If any bytes are encountered which do not
+//! conform with the rules implemented by the dialect, an error will be returned.
 //!
-//! These errors indicate, at a high level, what the error was caused by (an invalid character, for example), which
-//! part of the version is invalid.
+//! These errors indicate, at a high level, what the error was caused by (an invalid character, for example) and which
+//! part of the version is invalid (i.e. Major, Minor, Patch, Prerelease, Build Metadata).
 //!
-//! These errors are eagerly returned - meaning the **first** error encountered will be returned, even if there are more
+//! The error is eagerly returned, which means only the **first** error encountered will provided, even if there are more
 //! violations in the version string.
 //!
 //! ```rust
