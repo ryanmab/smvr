@@ -7,8 +7,8 @@ use core::fmt::{Debug, Display};
 
 use crate::component::{BuildMetadata, PartType, Prerelease, PrereleaseComponent};
 use crate::dialect;
-use crate::dialect::{CapturedBytes, Dialect, DialectParser, NextPartType, RemainingUnparsedBytes};
 use crate::dialect::Dialect::Standard;
+use crate::dialect::{CapturedBytes, Dialect, DialectParser, NextPartType, RemainingUnparsedBytes};
 use crate::error::Error;
 
 #[derive(Debug)]
