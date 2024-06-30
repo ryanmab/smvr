@@ -18,3 +18,6 @@ authors = ["Ryan Maber <ryan@ryanmaber.com>"]
 
 [badges]
 maintenance = { status = "passively-maintained" }
+
+[dev-dependencies]
+proptest = "1.1.0"

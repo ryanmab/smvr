@@ -7,8 +7,8 @@ use core::fmt::{Debug, Display};
 
 use crate::component::{BuildMetadata, PartType, Prerelease, PrereleaseComponent};
 use crate::dialect;
-use crate::dialect::Dialect::Standard;
 use crate::dialect::{CapturedBytes, Dialect, DialectParser, NextPartType, RemainingUnparsedBytes};
+use crate::dialect::Dialect::Standard;
 use crate::error::Error;
 
 #[derive(Debug)]
@@ -216,6 +216,8 @@ mod tests {
     use alloc::string::ToString;
     use alloc::vec;
 
+    use proptest::prelude::*;
+
     use crate::dialect::Dialect;
     use crate::error::Error;
     use crate::version::{BuildMetadata, PartType, Prerelease, PrereleaseComponent, Version};
@@ -292,5 +294,16 @@ mod tests {
         };
 
         assert_eq!(error, Error::InvalidPrecedingZero(PartType::Minor))
+    }
+
+    proptest! {
+        #[test]
+        fn parses_various_valid_version_strings(
+            version in "(0|[1-9][0-9]*)[.](0|[1-9][0-9]*)[.](0|[1-9][0-9]*)([-](0|[1-9A-Za-z-][0-9A-Za-z-]*)([.][0-9A-Za-z-]+)*)?([+][0-9A-Za-z-]+([.][0-9A-Za-z-]+)*)?"
+        ) {
+            let version = Version::parse(&version, Dialect::Standard);
+
+            assert!(version.is_ok())
+        }
     }
 }

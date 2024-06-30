@@ -1,14 +1,15 @@
-use crate::component::PartType;
-use crate::error::Error;
 use alloc::format;
 use alloc::string::String;
 use alloc::vec::Vec;
 use core::cmp::Ordering;
 
-mod standard;
 pub(crate) use standard::Standard;
 
 use crate::{BuildMetadata, Prerelease, Version};
+use crate::component::PartType;
+use crate::error::Error;
+
+mod standard;
 
 pub(crate) type CapturedBytes = Vec<u8>;
 pub(crate) type RemainingUnparsedBytes = [u8];
@@ -61,21 +62,7 @@ pub(crate) trait DialectParser {
         }
 
         match part.0 {
-            PartType::Prerelease => {
-                if !byte.is_ascii_alphanumeric() && byte != &b'-' {
-                    return Err(Error::InvalidCharacter(part.0));
-                }
-
-                if part.1.is_empty() && &b'0' == byte {
-                    return Err(Error::InvalidPrecedingZero(part.0));
-                }
-            }
-            PartType::BuildMetadata => {
-                if !byte.is_ascii_alphanumeric() && byte != &b'-' && byte != &b'.' {
-                    return Err(Error::InvalidCharacter(part.0));
-                }
-            }
-            _ => {
+            PartType::Major => {
                 if !(&b'0'..=&b'9').contains(&byte) {
                     // Major, minor and patch versions can only be digits
                     return Err(Error::InvalidCharacter(part.0));
@@ -84,15 +71,48 @@ pub(crate) trait DialectParser {
                 let is_first_digit = part.1.is_empty();
                 let is_last_digit = remaining_bytes.is_empty() || remaining_bytes[0] == b'.';
 
-                if part.0 == PartType::Major && byte == &b'0' && !is_last_digit {
+                if byte == &b'0' && is_first_digit && !is_last_digit {
                     // Major can begin with zero, only when it's the only digit (like 0.1.0)
                     return Err(Error::InvalidPrecedingZero(part.0));
                 }
+            }
+            PartType::Minor => {
+                if !(&b'0'..=&b'9').contains(&byte) {
+                    // Major, minor and patch versions can only be digits
+                    return Err(Error::InvalidCharacter(part.0));
+                }
 
-                if part.0 != PartType::Major && byte == &b'0' && (is_first_digit && !is_last_digit)
-                {
+                let is_first_digit = part.1.is_empty();
+                let is_last_digit = remaining_bytes.is_empty() || remaining_bytes[0] == b'.';
+
+                if byte == &b'0' && (is_first_digit && !is_last_digit) {
                     // Minor and patch can never start with a zero
                     return Err(Error::InvalidPrecedingZero(part.0));
+                }
+            }
+            PartType::Patch => {
+                if !(&b'0'..=&b'9').contains(&byte) {
+                    // Major, minor and patch versions can only be digits
+                    return Err(Error::InvalidCharacter(part.0));
+                }
+
+                let is_first_digit = part.1.is_empty();
+                let is_last_digit = remaining_bytes.is_empty()
+                    || (remaining_bytes[0] == b'+' || remaining_bytes[0] == b'-');
+
+                if byte == &b'0' && (is_first_digit && !is_last_digit) {
+                    // Minor and patch can never start with a zero
+                    return Err(Error::InvalidPrecedingZero(part.0));
+                }
+            }
+            PartType::Prerelease => {
+                if !byte.is_ascii_alphanumeric() && byte != &b'-' {
+                    return Err(Error::InvalidCharacter(part.0));
+                }
+            }
+            PartType::BuildMetadata => {
+                if !byte.is_ascii_alphanumeric() && byte != &b'-' && byte != &b'.' {
+                    return Err(Error::InvalidCharacter(part.0));
                 }
             }
         }
