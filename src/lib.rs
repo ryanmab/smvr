@@ -20,7 +20,10 @@
 //! Dialects reflect implementations and interpretations of the SemVer specification.
 //!
 //! A dialect must implement a method for parsing a version string, following a deterministic set of
-//! rules. For example, differing package managers may impose specific styling constraints.
+//! rules. For example, differing package managers may impose specific styling constraints, and this is
+//! the perfect use case of a dedicated dialect.
+//!
+//! Currently only Semver Versioning 2.0.0 is supported.
 //!
 //! Dialect | Description
 //! -|-
@@ -28,9 +31,10 @@
 //!
 //! ### Parsing version strings
 //!
-//! Version strings should be parsed, following a dialect, to produce a `smvr::Version` instance.
+//! Version strings should be parsed to produce a `smvr::Version` instance. When attempting to parse a version string, the intended
+//! dialect to must be provided.
 //!
-//! Validation is enforced while parsing occurs, and is implemented by the chosen dialect.
+//! Validation is enforced while parsing occurs to ensure only valid version strings are returned.
 //!
 //! ```rust
 //! use smvr::{BuildMetadata, Prerelease, PrereleaseComponent, Version};
@@ -60,9 +64,9 @@
 //!
 //! ### Comparing versions
 //!
-//! Instances of `smvr::Version`, which are parsed from the same dialect, can be compared against once another.
+//! Instances of `smvr::Version`, which were parsed from the same dialect, can be compared against one another.
 //!
-//! The comparison behaviour is dialect specific, and can be used to deterministically evaluate the chronology of two or more version strings.
+//! The comparison behaviour is specific to the dialect, and can be used to deterministically evaluate the chronology of two or more version strings.
 //!
 //! For example: `1.0.0-alpha.1` < `1.0.0-alpha.2` < `1.0.0-beta` < `1.0.0` < `1.0.1`
 //!
@@ -87,7 +91,7 @@
 //!
 //! ### Handling errors
 //!
-//! While parsing, each byte will be read, adhereing to a chosen dialect. If any bytes are encountered which do not
+//! While parsing, each byte will be read, adhering to a chosen dialect. If any bytes are encountered which do not
 //! conform with the rules implemented by the dialect, an error will be returned.
 //!
 //! These errors indicate, at a high level, what the error was caused by (an invalid character, for example) and which
