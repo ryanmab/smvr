@@ -5,9 +5,9 @@ use core::cmp::Ordering;
 
 pub(crate) use standard::Standard;
 
-use crate::{BuildMetadata, Prerelease, Version};
 use crate::component::PartType;
 use crate::error::Error;
+use crate::{BuildMetadata, Prerelease, Version};
 
 mod standard;
 
