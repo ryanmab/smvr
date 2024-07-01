@@ -8,6 +8,7 @@ impl DialectParser for Standard {}
 mod tests {
     use super::*;
     use crate::component::PartType;
+    use crate::Error;
     use alloc::vec;
 
     #[test]
@@ -46,5 +47,26 @@ mod tests {
         let next_type = result;
 
         assert_eq!(next_type, Some(PartType::BuildMetadata))
+    }
+
+    #[test]
+    fn should_fail_non_numerics_in_major() {
+        let result = Standard::parse_byte(&b'a', (PartType::Major, &vec![b'1']), &[b'1', b'2']);
+
+        assert_eq!(Err(Error::InvalidCharacter(PartType::Major)), result);
+    }
+
+    #[test]
+    fn should_fail_non_numerics_in_minor() {
+        let result = Standard::parse_byte(&b'a', (PartType::Minor, &vec![]), &[b'1', b'2']);
+
+        assert_eq!(Err(Error::InvalidCharacter(PartType::Minor)), result);
+    }
+
+    #[test]
+    fn should_fail_non_numerics_in_patch() {
+        let result = Standard::parse_byte(&b'a', (PartType::Patch, &vec![b'9']), &[b'1', b'2']);
+
+        assert_eq!(Err(Error::InvalidCharacter(PartType::Patch)), result);
     }
 }
