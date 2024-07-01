@@ -21,7 +21,7 @@
 //!
 //! A dialect must implement a method for parsing a version string in accordance with a deterministic set of
 //! rules. For example, differing package managers may impose different constraints to the style of a SemVer string. This is
-//! the perfect use case of a dedicated dialect.
+//! the perfect use case for a dedicated dialect.
 //!
 //! Currently only Semver Versioning 2.0.0 is supported.
 //!
