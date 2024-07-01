@@ -83,8 +83,8 @@ jobs:
         with:
           toolchain: ${{ matrix.msrv }}
 
-      - name: cargo +${{ matrix.msrv }} --lib check
-        run: cargo +${{ matrix.msrv }} --lib check
+      - name: cargo +${{ matrix.msrv }} check --lib
+        run: cargo +${{ matrix.msrv }} check --lib
 
   documentation:
     runs-on: ubuntu-latest
