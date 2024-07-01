@@ -5,7 +5,7 @@ version = "0.1.1"
 keywords = ["semver", "version", "parser", "semantic"]
 categories = ["parser-implementations", "development-tools"]
 
-rust-version = "1.56.0"
+rust-version = "1.60.0"
 edition = "2021"
 
 license = "MIT"

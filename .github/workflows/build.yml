@@ -73,7 +73,7 @@ jobs:
 
     strategy:
       matrix:
-        msrv: [ "1.56.0" ]
+        msrv: [ "1.60.0" ]
 
     steps:
       - uses: actions/checkout@v4
@@ -83,8 +83,8 @@ jobs:
         with:
           toolchain: ${{ matrix.msrv }}
 
-      - name: cargo +${{ matrix.msrv }} check --lib
-        run: cargo +${{ matrix.msrv }} check --lib
+      - name: cargo +${{ matrix.msrv }} check
+        run: cargo check
 
   documentation:
     runs-on: ubuntu-latest
