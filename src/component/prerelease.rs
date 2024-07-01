@@ -12,7 +12,7 @@ pub enum Prerelease {
 }
 
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
-/// An individual piece of a prerelease identifier, as they were interpreted following the dialect.
+/// An individual piece of a prerelease identifier, as they were interpreted.
 pub enum PrereleaseComponent {
     Number(usize),
     String(String),

@@ -14,7 +14,7 @@ pub(crate) type CapturedBytes = Vec<u8>;
 pub(crate) type RemainingUnparsedBytes = [u8];
 pub(crate) type NextPartType = Option<PartType>;
 
-/// The specification to follow when parsing, validating, ordering and formatting of a particular version.
+/// The specification to follow when parsing, validating, ordering and formatting a particular version.
 ///
 /// Dialects implement a distinct parsing method for a version string, based on the version constraint's
 /// origin. For example, differing package managers.
