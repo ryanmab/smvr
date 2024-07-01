@@ -17,10 +17,10 @@
 //!
 //! ## Dialects
 //!
-//! Dialects reflect implementations and interpretations of the SemVer specification.
+//! Dialects reflect interpretations of the SemVer specification.
 //!
-//! A dialect must implement a method for parsing a version string, following a deterministic set of
-//! rules. For example, differing package managers may impose specific styling constraints, and this is
+//! A dialect must implement a method for parsing a version string in accordance with deterministic set of
+//! rules. For example, differing package managers may impose specific constraints to the style of a SemVer string. This is
 //! the perfect use case of a dedicated dialect.
 //!
 //! Currently only Semver Versioning 2.0.0 is supported.
@@ -31,10 +31,10 @@
 //!
 //! ### Parsing version strings
 //!
-//! Version strings should be parsed to produce a `smvr::Version` instance. When attempting to parse a version string, the intended
-//! dialect to must be provided.
+//! Version strings are parsed to produce a `smvr::Version` instance. When attempting to parse a version string, the dialect
+//! to use, must be provided.
 //!
-//! Validation is enforced while parsing occurs to ensure only valid version strings are returned.
+//! Validation is enforced by the dialect and occurs while parsing, to ensure only valid version strings are returned.
 //!
 //! ```rust
 //! use smvr::{BuildMetadata, Prerelease, PrereleaseComponent, Version};
