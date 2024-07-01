@@ -1,5 +1,6 @@
 ![Coverage](https://api.coveragerobot.com/v1/graph/github/ryanmab/smvr/badge.svg?token=c63b202336b40790d0e8963cc595bd90eb0e6d46630e222511)
 [![Crates.io Version](https://img.shields.io/crates/v/smvr)](https://crates.io/crates/smvr)
+![Crates.io Total Downloads](https://img.shields.io/crates/d/smvr)
 [![docs.rs](https://img.shields.io/docsrs/smvr)](https://docs.rs/smvr)
 [![Build](https://github.com/ryanmab/smvr/actions/workflows/build.yml/badge.svg)](https://github.com/ryanmab/smvr/actions/workflows/build.yml)
 ![GitHub License](https://img.shields.io/github/license/ryanmab/smvr)
@@ -22,20 +23,24 @@ smvr = "0.1.1"
 
 ## Dialects
 
-Dialects reflect varying implementations and interpretations of the SemVer specification.
+Dialects reflect interpretations of the SemVer specification.
 
-Dialects implement a distinct parsing method for a version string, based on the version constraint's
-origin. For example, differing package managers.
+A dialect must implement a method for parsing a version string in accordance with a deterministic set of
+rules. For example, differing package managers may impose different constraints to the style of a SemVer string. This is
+the perfect use case for a dedicated dialect.
+
+Currently only Semver Versioning 2.0.0 is supported.
 
 Dialect | Description
 -|-
 `smvr::Dialect::Standard` | Follows the [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) specification.
 
-### Parsing version strings
+## Parsing version strings
 
-Version strings should be parsed against a dialect to produce a `smvr::Version` instance.
+Version strings are parsed to produce a `smvr::Version` instance. When attempting to parse a version string, the dialect
+to use must be provided.
 
-This enforces validation while parsing inline with the dialect implementation.
+Validation is enforced by the dialect and occurs while parsing. This helps ensure only valid version strings are returned.
 
 ```rust
 use smvr::{BuildMetadata, Prerelease, PrereleaseComponent, Version};
@@ -62,12 +67,13 @@ assert_eq!(
 assert_eq!(version.build_metadata, BuildMetadata::Identifier("build-1".to_string()));
 ```
 
-### Comparing versions
+## Comparing versions
 
-`smvr::Version`'s can be compared inline with the original dialect implementation used to
-parse the version string.
+Instances of `smvr::Version`, which were parsed using the same dialect, can be compared against one another.
 
-**Note:** In order to maintain consistency, only versions of the same dialect can be compared.
+The comparison behaviour is specific to the dialect, and can be used to deterministically evaluate the chronology of two or more version strings.
+
+For example: `1.0.0-alpha.1` < `1.0.0-alpha.2` < `1.0.0-beta` < `1.0.0` < `1.0.1`
 
 ```rust
 use smvr::{Dialect, Version};
@@ -87,16 +93,16 @@ assert!(version_1_0_1_beta_2 < version_1_0_1_beta_10);
 assert!(version_1_0_1_beta_10 < version_1_0_1);
 ```
 
-### Handling errors
+## Handling errors
 
-While parsing, each byte will be read inline with the dialect's implementation. If any bytes are uncounted which
-do not conform with how the rules the dialect implements, an error will be returned.
+While parsing, each byte is be read, and if any bytes are encountered which do not conform with the rules implemented by
+the dialect, an error will be returned.
 
-These errors indicate, at a high level, what the error was caused by (an invalid character, for example), which
-part of the version is invalid.
+These errors indicate, at a high level, what the error was caused by (an invalid character, for example) and where
+the error occurred (i.e. inside one of the parts: Major, Minor, Patch, Prerelease, Build Metadata).
 
-These errors are eagerly returned - meaning the **first** error encountered will be returned, even if there are more
-violations in the version string.
+Errors are eagerly returned, which means **the first** invalid byte encountered will trigger an error. This does not guarantee there are no more
+violations in the rest of the version string.
 
 ```rust
 use smvr::{Dialect, PartType, Version};
