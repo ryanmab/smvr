@@ -1,5 +1,6 @@
 ![Coverage](https://api.coveragerobot.com/v1/graph/github/ryanmab/smvr/badge.svg?token=c63b202336b40790d0e8963cc595bd90eb0e6d46630e222511)
 [![Crates.io Version](https://img.shields.io/crates/v/smvr)](https://crates.io/crates/smvr)
+![Crates.io Total Downloads](https://img.shields.io/crates/d/smvr)
 [![docs.rs](https://img.shields.io/docsrs/smvr)](https://docs.rs/smvr)
 [![Build](https://github.com/ryanmab/smvr/actions/workflows/build.yml/badge.svg)](https://github.com/ryanmab/smvr/actions/workflows/build.yml)
 ![GitHub License](https://img.shields.io/github/license/ryanmab/smvr)
@@ -30,16 +31,17 @@ the perfect use case for a dedicated dialect.
 
 Currently only Semver Versioning 2.0.0 is supported.
 
-Dialect | Description
--|-
-`smvr::Dialect::Standard` | Follows the [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) specification.
+ Dialect                   | Description                                                                                 
+---------------------------|---------------------------------------------------------------------------------------------
+ `smvr::Dialect::Standard` | Follows the [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) specification. 
 
 ## Parsing version strings
 
 Version strings are parsed to produce a `smvr::Version` instance. When attempting to parse a version string, the dialect
 to use must be provided.
 
-Validation is enforced by the dialect and occurs while parsing. This helps ensure only valid version strings are returned.
+Validation is enforced by the dialect and occurs while parsing. This helps ensure only valid version strings are
+returned.
 
 ```rust
 use smvr::{BuildMetadata, Prerelease, PrereleaseComponent, Version};
@@ -70,7 +72,8 @@ assert_eq!(version.build_metadata, BuildMetadata::Identifier("build-1".to_string
 
 Instances of `smvr::Version`, which were parsed using the same dialect, can be compared against one another.
 
-The comparison behaviour is specific to the dialect, and can be used to deterministically evaluate the chronology of two or more version strings.
+The comparison behaviour is specific to the dialect, and can be used to deterministically evaluate the chronology of two
+or more version strings.
 
 For example: `1.0.0-alpha.1` < `1.0.0-alpha.2` < `1.0.0-beta` < `1.0.0` < `1.0.1`
 
@@ -100,7 +103,8 @@ the dialect, an error will be returned.
 These errors indicate, at a high level, what the error was caused by (an invalid character, for example) and where
 the error occurred (i.e. inside one of the parts: Major, Minor, Patch, Prerelease, Build Metadata).
 
-Errors are eagerly returned, which means **the first** invalid byte encountered will trigger an error. This does not guarantee there are no more
+Errors are eagerly returned, which means **the first** invalid byte encountered will trigger an error. This does not
+guarantee there are no more
 violations in the rest of the version string.
 
 ```rust
