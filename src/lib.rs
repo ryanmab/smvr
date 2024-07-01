@@ -29,7 +29,7 @@
 //! -|-
 //! `smvr::Dialect::Standard` | Follows the [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) specification.
 //!
-//! ### Parsing version strings
+//! ## Parsing version strings
 //!
 //! Version strings are parsed to produce a `smvr::Version` instance. When attempting to parse a version string, the dialect
 //! to use must be provided.
@@ -62,7 +62,7 @@
 //! # Ok::<(), Error>(())
 //! ```
 //!
-//! ### Comparing versions
+//! ## Comparing versions
 //!
 //! Instances of `smvr::Version`, which were parsed using the same dialect, can be compared against one another.
 //!
@@ -89,7 +89,7 @@
 //! # Ok::<(), Error>(())
 //! ```
 //!
-//! ### Handling errors
+//! ## Handling errors
 //!
 //! While parsing, each byte is be read, and if any bytes are encountered which do not conform with the rules implemented by
 //! the dialect, an error will be returned.
