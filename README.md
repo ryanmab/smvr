@@ -18,7 +18,7 @@ be formed, incremented and evaluated.
 
 ```toml
 [dependencies]
-smvr = "0.1.1"
+smvr = "0.1.2"
 ```
 
 ## Dialects
