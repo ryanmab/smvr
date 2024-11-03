@@ -47,7 +47,6 @@ pub(crate) trait DialectParser {
             match part.0 {
                 PartType::Major => return Ok(Some(PartType::Minor)),
                 PartType::Minor => return Ok(Some(PartType::Patch)),
-                PartType::Patch => return Ok(Some(PartType::Minor)),
 
                 // The prerelease part is special, in that it doesn't have to transition to another
                 // part of the version when encountering a dot. Specifically, the dot represents a new

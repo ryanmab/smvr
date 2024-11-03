@@ -64,6 +64,13 @@ mod tests {
     }
 
     #[test]
+    fn should_fail_using_dot_after_patch() {
+        let result = Standard::parse_byte(&b'.', (PartType::Patch, &vec![b'9']), &[b'1', b'2']);
+
+        assert_eq!(Err(Error::InvalidCharacter(PartType::Patch)), result);
+    }
+
+    #[test]
     fn should_fail_non_numerics_in_patch() {
         let result = Standard::parse_byte(&b'a', (PartType::Patch, &vec![b'9']), &[b'1', b'2']);
 
