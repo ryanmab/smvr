@@ -157,7 +157,7 @@ jobs:
           name: coverage
           path: lcov_*.info
 
-      - uses: coverage-robot/action@v1.0.7
+      - uses: coverage-robot/action@v1.0.8
         with:
           token: ${{ secrets.COVERAGE_TOKEN }}
           files: |
@@ -165,7 +165,7 @@ jobs:
           tag: unit-tests
         continue-on-error: true
 
-      - uses: coverage-robot/action@v1.0.7
+      - uses: coverage-robot/action@v1.0.8
         with:
           token: ${{ secrets.COVERAGE_TOKEN }}
           files: |
