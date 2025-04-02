@@ -3,7 +3,7 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use core::cmp::Ordering;
 
-pub(crate) use standard::Standard;
+pub use standard::Standard;
 
 use crate::component::PartType;
 use crate::error::Error;
@@ -11,39 +11,39 @@ use crate::{BuildMetadata, Prerelease, Version};
 
 mod standard;
 
-pub(crate) type CapturedBytes = Vec<u8>;
-pub(crate) type RemainingUnparsedBytes = [u8];
-pub(crate) type NextPartType = Option<PartType>;
+pub type CapturedBytes = Vec<u8>;
+pub type RemainingUnparsedBytes = [u8];
+pub type NextPartType = Option<PartType>;
 
 /// The specification to follow when parsing, validating, ordering and formatting a particular version.
 ///
 /// Dialects implement a distinct parsing method for a version string, based on the version constraint's
 /// origin. For example, differing package managers.
 ///
-/// Every version has to be parsed following a particular dialect - likely standard SemVer. However,
+/// Every version has to be parsed following a particular dialect - likely standard Semantic Versioning. However,
 /// dialects open up support for version comparisons following particular behaviour outlined by
 /// Cargo, or wider support for other languages like Composer (for PHP), npm (for JavaScript), etc.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Dialect {
     /// The standard dialect follows the [Semver Versioning 2.0.0](https://github.com/semver/semver/blob/master/semver.md#semantic-versioning-200) specification
     Standard,
 }
 
-pub(crate) trait DialectParser {
+pub trait DialectParser {
     fn parse_byte(
-        byte: &u8,
+        byte: u8,
         part: (PartType, &CapturedBytes),
         remaining_bytes: &RemainingUnparsedBytes,
     ) -> Result<NextPartType, Error> {
-        if (part.0 == PartType::Patch || part.0 == PartType::Prerelease) && byte == &b'+' {
+        if (part.0 == PartType::Patch || part.0 == PartType::Prerelease) && byte == b'+' {
             return Ok(Some(PartType::BuildMetadata));
         }
 
-        if part.0 == PartType::Patch && byte == &b'-' {
+        if part.0 == PartType::Patch && byte == b'-' {
             return Ok(Some(PartType::Prerelease));
         }
 
-        if byte == &b'.' {
+        if byte == b'.' {
             match part.0 {
                 PartType::Major => return Ok(Some(PartType::Minor)),
                 PartType::Minor => return Ok(Some(PartType::Patch)),
@@ -62,7 +62,7 @@ pub(crate) trait DialectParser {
 
         match part.0 {
             PartType::Major => {
-                if !(&b'0'..=&b'9').contains(&byte) {
+                if !byte.is_ascii_digit() {
                     // Major, minor and patch versions can only be digits
                     return Err(Error::InvalidCharacter(part.0));
                 }
@@ -70,13 +70,13 @@ pub(crate) trait DialectParser {
                 let is_first_digit = part.1.is_empty();
                 let is_last_digit = remaining_bytes.is_empty() || remaining_bytes[0] == b'.';
 
-                if byte == &b'0' && is_first_digit && !is_last_digit {
+                if byte == b'0' && is_first_digit && !is_last_digit {
                     // Major can begin with zero, only when it's the only digit (like 0.1.0)
                     return Err(Error::InvalidPrecedingZero(part.0));
                 }
             }
             PartType::Minor => {
-                if !(&b'0'..=&b'9').contains(&byte) {
+                if !byte.is_ascii_digit() {
                     // Major, minor and patch versions can only be digits
                     return Err(Error::InvalidCharacter(part.0));
                 }
@@ -84,13 +84,13 @@ pub(crate) trait DialectParser {
                 let is_first_digit = part.1.is_empty();
                 let is_last_digit = remaining_bytes.is_empty() || remaining_bytes[0] == b'.';
 
-                if byte == &b'0' && (is_first_digit && !is_last_digit) {
+                if byte == b'0' && (is_first_digit && !is_last_digit) {
                     // Minor and patch can never start with a zero
                     return Err(Error::InvalidPrecedingZero(part.0));
                 }
             }
             PartType::Patch => {
-                if !(&b'0'..=&b'9').contains(&byte) {
+                if !byte.is_ascii_digit() {
                     // Major, minor and patch versions can only be digits
                     return Err(Error::InvalidCharacter(part.0));
                 }
@@ -99,18 +99,18 @@ pub(crate) trait DialectParser {
                 let is_last_digit = remaining_bytes.is_empty()
                     || (remaining_bytes[0] == b'+' || remaining_bytes[0] == b'-');
 
-                if byte == &b'0' && (is_first_digit && !is_last_digit) {
+                if byte == b'0' && (is_first_digit && !is_last_digit) {
                     // Minor and patch can never start with a zero
                     return Err(Error::InvalidPrecedingZero(part.0));
                 }
             }
             PartType::Prerelease => {
-                if !byte.is_ascii_alphanumeric() && byte != &b'-' {
+                if !byte.is_ascii_alphanumeric() && byte != b'-' {
                     return Err(Error::InvalidCharacter(part.0));
                 }
             }
             PartType::BuildMetadata => {
-                if !byte.is_ascii_alphanumeric() && byte != &b'-' && byte != &b'.' {
+                if !byte.is_ascii_alphanumeric() && byte != b'-' && byte != b'.' {
                     return Err(Error::InvalidCharacter(part.0));
                 }
             }
@@ -192,7 +192,7 @@ pub(crate) trait DialectParser {
                 identifier
                     .iter()
                     .fold(String::new(), |mut str, part| {
-                        str.push_str(&format!(".{}", part));
+                        str.push_str(&format!(".{part}"));
 
                         str
                     })
@@ -201,7 +201,7 @@ pub(crate) trait DialectParser {
         }
 
         if let BuildMetadata::Identifier(identifier) = &version.build_metadata {
-            string.push_str(&format!("+{}", identifier));
+            string.push_str(&format!("+{identifier}"));
         }
 
         string

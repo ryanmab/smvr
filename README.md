@@ -1,4 +1,4 @@
-![Coverage](https://api.coveragerobot.com/v1/graph/github/ryanmab/smvr/badge.svg?token=c63b202336b40790d0e8963cc595bd90eb0e6d46630e222511)
+[![Coverage](https://api.coveragerobot.com/v1/graph/github/ryanmab/smvr/badge.svg?token=c63b202336b40790d0e8963cc595bd90eb0e6d46630e222511)](https://coveragerobot.com)
 [![Crates.io Version](https://img.shields.io/crates/v/smvr)](https://crates.io/crates/smvr)
 ![Crates.io Total Downloads](https://img.shields.io/crates/d/smvr)
 [![docs.rs](https://img.shields.io/docsrs/smvr)](https://docs.rs/smvr)
@@ -23,10 +23,10 @@ smvr = "0.1.3"
 
 ## Dialects
 
-Dialects reflect interpretations of the SemVer specification.
+Dialects reflect interpretations of the Semantic Versioning specification.
 
 A dialect must implement a method for parsing a version string in accordance with a deterministic set of
-rules. For example, differing package managers may impose different constraints to the style of a SemVer string. This is
+rules. For example, differing package managers may impose different constraints to the style of a version string. This is
 the perfect use case for a dedicated dialect.
 
 Currently only Semver Versioning 2.0.0 is supported.
