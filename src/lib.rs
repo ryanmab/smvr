@@ -19,7 +19,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! smvr = "0.1.3"
+//! smvr = "0.1.4"
 //! ```
 //!
 //! ## Dialects
