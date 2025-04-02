@@ -12,13 +12,35 @@ use crate::dialect::{CapturedBytes, Dialect, DialectParser, NextPartType, Remain
 use crate::error::Error;
 
 #[derive(Debug)]
+/// A parsed version string, conforming to a specific dialect.
+///
+/// Instances of `Version` can be compared against one another, and formatted as a string.
+///
+/// ## Example
+///
+/// ```rust
+/// use smvr::{Dialect, Version};
+/// let version = Version::parse("0.1.4-beta", Dialect::Standard);
+///
+/// # assert_eq!(version.unwrap().to_string(), "0.1.4-beta".to_string())
+/// ```
 pub struct Version {
-    pub major: usize,
-    pub minor: usize,
-    pub patch: usize,
-    pub prerelease: Prerelease,
-    pub build_metadata: BuildMetadata,
     dialect: Dialect,
+
+    /// The major version number.
+    pub major: usize,
+
+    /// The minor version number.
+    pub minor: usize,
+
+    /// The patch version number.
+    pub patch: usize,
+
+    /// The prerelease identifier, if provided.
+    pub prerelease: Prerelease,
+
+    /// The build metadata, if provided.
+    pub build_metadata: BuildMetadata,
 }
 
 impl Version {
@@ -29,7 +51,15 @@ impl Version {
     /// let version = Version::parse("0.1.4-beta", Dialect::Standard);
     /// # assert_eq!(version.unwrap().to_string(), "0.1.4-beta".to_string())
     /// ```
-    pub fn parse(version: &str, dialect: Dialect) -> Result<Version, Error> {
+    ///
+    /// ## Errors
+    ///
+    /// If the version string is not valid for the chosen dialect, the _first_ error encountered will be returned.
+    ///
+    /// ## Panics
+    ///
+    /// If the version string is not valid utf-8, a panic will occur.
+    pub fn parse(version: &str, dialect: Dialect) -> Result<Self, Error> {
         let version_bytes = version.as_bytes();
 
         let (mut major, mut minor, mut patch, mut prerelease, mut build_metadata) =
@@ -38,7 +68,7 @@ impl Version {
         let mut current_part_type = PartType::Major;
         let mut remaining = version_bytes;
         loop {
-            let part = Version::parse_part(remaining, dialect, current_part_type)?;
+            let part = Self::parse_part(remaining, dialect, current_part_type)?;
 
             let (part, r, next_part_type) = part;
 
@@ -58,7 +88,7 @@ impl Version {
             current_part_type = next_part_type.unwrap();
         }
 
-        return Ok(Version::new(
+        Ok(Self::new(
             alloc::str::from_utf8(&major[..])
                 .unwrap()
                 .parse::<usize>()
@@ -71,12 +101,14 @@ impl Version {
                 .unwrap()
                 .parse::<usize>()
                 .unwrap_or_default(),
-            if !prerelease.is_empty() {
+            if prerelease.is_empty() {
+                None
+            } else {
                 Some(
                     prerelease
                         .iter()
                         .map(|part| {
-                            return if part.iter().all(|i| (&b'0'..=&b'9').contains(&i)) {
+                            if part.iter().all(|i| (&b'0'..=&b'9').contains(&i)) {
                                 PrereleaseComponent::Number(
                                     alloc::str::from_utf8(&part[..])
                                         .unwrap()
@@ -87,24 +119,22 @@ impl Version {
                                 PrereleaseComponent::String(
                                     alloc::str::from_utf8(&part[..]).unwrap().to_string(),
                                 )
-                            };
+                            }
                         })
                         .collect(),
                 )
-            } else {
-                None
             },
-            if !build_metadata.is_empty() {
+            if build_metadata.is_empty() {
+                None
+            } else {
                 Some(
                     alloc::str::from_utf8(&build_metadata[..])
                         .unwrap()
                         .to_string(),
                 )
-            } else {
-                None
             },
             dialect,
-        ));
+        ))
     }
 
     /// Progressively parse and return one particular part of a version string.
@@ -125,7 +155,7 @@ impl Version {
         for (i, byte) in version_bytes.iter().enumerate() {
             let next_part = match dialect {
                 Standard => dialect::Standard::parse_byte(
-                    byte,
+                    *byte,
                     (current_part, &part),
                     &version_bytes[i + 1..],
                 ),
@@ -135,13 +165,13 @@ impl Version {
                 return Ok((part, &version_bytes[i + 1..], next_part));
             }
 
-            part.push(byte.to_owned())
+            part.push(byte.to_owned());
         }
 
         Ok((part, &[], None))
     }
 
-    /// Create a new Version instance, using pre-parsed SemVer content.
+    /// Create a new Version instance, using pre-parsed Semantic Version content.
     fn new(
         major: usize,
         minor: usize,
@@ -149,21 +179,17 @@ impl Version {
         prerelease: Option<Vec<PrereleaseComponent>>,
         build_metadata: Option<String>,
         dialect: Dialect,
-    ) -> Version {
-        Version {
+    ) -> Self {
+        Self {
             major,
             minor,
             patch,
-            prerelease: if let Some(prerelease) = prerelease {
+            prerelease: prerelease.map_or(Prerelease::Empty, |prerelease| {
                 Prerelease::Identifier(prerelease)
-            } else {
-                Prerelease::Empty
-            },
-            build_metadata: if let Some(metadata) = build_metadata {
+            }),
+            build_metadata: build_metadata.map_or(BuildMetadata::Empty, |metadata| {
                 BuildMetadata::Identifier(metadata)
-            } else {
-                BuildMetadata::Empty
-            },
+            }),
             dialect,
         }
     }
@@ -259,7 +285,7 @@ mod tests {
             BuildMetadata::Identifier("build1234".to_string())
         );
 
-        assert_eq!("12.19.1-alpha.12+build1234", version.to_string())
+        assert_eq!("12.19.1-alpha.12+build1234", version.to_string());
     }
 
     #[test]
@@ -282,7 +308,7 @@ mod tests {
         assert_eq!(
             version.build_metadata,
             BuildMetadata::Identifier("build.1234".to_string())
-        )
+        );
     }
 
     #[test]
@@ -293,7 +319,7 @@ mod tests {
             panic!("Parsing should have returned an error")
         };
 
-        assert_eq!(error, Error::InvalidPrecedingZero(PartType::Minor))
+        assert_eq!(error, Error::InvalidPrecedingZero(PartType::Minor));
     }
 
     proptest! {
@@ -303,7 +329,7 @@ mod tests {
         ) {
             let version = Version::parse(&version, Dialect::Standard);
 
-            assert!(version.is_ok())
+            assert!(version.is_ok());
         }
     }
 }

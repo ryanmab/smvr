@@ -1,5 +1,12 @@
 #![crate_name = "smvr"]
 #![no_std]
+#![deny(missing_docs)]
+#![deny(clippy::all)]
+#![warn(clippy::pedantic)]
+#![warn(clippy::nursery)]
+#![warn(missing_debug_implementations, rust_2018_idioms, rustdoc::all)]
+#![allow(rustdoc::private_doc_tests)]
+#![forbid(unsafe_code)]
 
 //! # smvr
 //!
@@ -17,10 +24,10 @@
 //!
 //! ## Dialects
 //!
-//! Dialects reflect interpretations of the SemVer specification.
+//! Dialects reflect interpretations of the Semantic Versioning specification.
 //!
 //! A dialect must implement a method for parsing a version string in accordance with a deterministic set of
-//! rules. For example, differing package managers may impose different constraints to the style of a SemVer string. This is
+//! rules. For example, differing package managers may impose different constraints to the style of a version string. This is
 //! the perfect use case for a dedicated dialect.
 //!
 //! Currently only Semver Versioning 2.0.0 is supported.

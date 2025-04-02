@@ -1,7 +1,7 @@
 use core::fmt::{Display, Formatter};
 
-#[derive(Clone, Copy, PartialEq, Debug)]
-/// The component parts of a SemVer version.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+/// The component parts of a Semantic Version.
 pub enum PartType {
     /// The major version number in a version string.
     ///
@@ -36,11 +36,11 @@ impl Display for PartType {
             f,
             "{}",
             match self {
-                PartType::Major => "major",
-                PartType::Minor => "minor",
-                PartType::Patch => "patch",
-                PartType::Prerelease => "prerelease",
-                PartType::BuildMetadata => "build metadata",
+                Self::Major => "major",
+                Self::Minor => "minor",
+                Self::Patch => "patch",
+                Self::Prerelease => "prerelease",
+                Self::BuildMetadata => "build metadata",
             }
         )
     }

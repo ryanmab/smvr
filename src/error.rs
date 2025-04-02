@@ -1,7 +1,7 @@
 use crate::component::PartType;
 
 /// Error parsing a version string.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Error {
     /// A part of the provided version string contains an invalid character.
     InvalidCharacter(PartType),
