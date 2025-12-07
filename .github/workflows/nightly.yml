@@ -33,7 +33,7 @@ jobs:
       - name: cargo test --doc
         run: cargo test --locked --all-features --doc
 
-      - uses: ryanmab/incident-io-alert@v0.1.1
+      - uses: ryanmab/incident-io-alert@v0.1.2
         if: failure() && github.event_name == 'schedule'
         with:
           alert_source_id: ${{ secrets.ALERT_SOURCE_ID }}
@@ -68,7 +68,7 @@ jobs:
         env:
           RUSTFLAGS: -D deprecated
 
-      - uses: ryanmab/incident-io-alert@v0.1.1
+      - uses: ryanmab/incident-io-alert@v0.1.2
         if: failure() && github.event_name == 'schedule'
         with:
           alert_source_id: ${{ secrets.ALERT_SOURCE_ID }}
