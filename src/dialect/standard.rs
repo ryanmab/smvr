@@ -7,8 +7,8 @@ impl DialectParser for Standard {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::component::PartType;
     use crate::Error;
+    use crate::component::PartType;
     use alloc::vec;
 
     #[test]
