@@ -5,7 +5,7 @@ on:
         branches:
             - main
     pull_request:
-        types: [ opened, reopened, labeled, unlabeled, synchronize ]
+        types: [opened, reopened, labeled, unlabeled, synchronize]
 
 permissions:
     contents: read
@@ -23,9 +23,17 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            -   uses: release-drafter/release-drafter@v7
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Update draft release
+              uses: release-drafter/release-drafter@v7
+              if: github.ref == 'refs/heads/main'
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Update pull request labels
+              uses: release-drafter/release-drafter/autolabeler@v7
+              if: github.event_name == 'pull_request'
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     check_labels:
         name: Validate Labels
@@ -37,26 +45,27 @@ jobs:
             pull-requests: write
 
         steps:
-            -   uses: mheap/github-action-required-labels@v5
-                if: ${{ always() }}
-                with:
-                    mode: exactly
-                    count: 1
-                    labels: "bump-patch, bump-minor, bump-major, skip-changelog"
-                    add_comment: true
-                    message: |
-                        This PR needs **{{ errorString }}** one label added to indicate whether it is a major, minor, or patch change.
+            - uses: mheap/github-action-required-labels@v5
+              if: ${{ always() }}
+              with:
+                  mode: exactly
+                  count: 1
+                  labels: "bump-patch, bump-minor, bump-major, skip-changelog"
+                  add_comment: true
+                  message: |
+                      This PR needs **{{ errorString }}** one label added to indicate whether it is a major, minor, or patch change.
 
-                        The available labels are: `bump-patch`, `bump-minor`, `bump-major` and `skip-changelog`.
+                      The available labels are: `bump-patch`, `bump-minor`, `bump-major` and `skip-changelog`.
 
-            -   uses: mheap/github-action-required-labels@v5
-                if: ${{ always() }}
-                with:
-                    mode: exactly
-                    count: 1
-                    labels: "feature, chore, bug"
-                    add_comment: true
-                    message: |
-                        This PR needs **{{ errorString }}** one label added to indicate whether it is a feature, bug, or chore.
+            - uses: mheap/github-action-required-labels@v5
+              if: ${{ always() }}
+              with:
+                  mode: exactly
+                  count: 1
+                  labels: "feature, chore, bug"
+                  add_comment: true
+                  message: |
+                      This PR needs **{{ errorString }}** one label added to indicate whether it is a feature, bug, or chore.
 
-                        The available labels are: `feature`, `chore`, `bug`.
+                      The available labels are: `feature`, `chore`, `bug`.
+
